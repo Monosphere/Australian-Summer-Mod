@@ -7,4 +7,4 @@ you see my friend kangaroo, say hi
 Enter a modded private room so you are able to move between the maps without disconnecting, and press the red button on the 
 table in forest to start, get ready to move fast
 
-Copyright 2022 Monosphere
+Created By Monosphere
