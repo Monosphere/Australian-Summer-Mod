@@ -26,6 +26,7 @@ namespace SummerInAustralia
         public bool hasStarted;
         public bool[] trophiesOwned;
         public int money = 5;
+        ButtonType shrineTrigger;
 
         int timeSinceCountdown = 650;
 
@@ -126,7 +127,7 @@ namespace SummerInAustralia
             shrine.transform.position = new Vector3(-61.5f, -7.6f, -61.3f);
             shrine.transform.eulerAngles = new Vector3(-90, 0, -70);
             shrine.transform.SetParent(objectsParent.transform, false);
-            ButtonType shrineTrigger = shrine.AddComponent<ButtonType>();
+            shrineTrigger = shrine.AddComponent<ButtonType>();
             shrineTrigger.typeOfButton = 13;
             shrineTrigger.plugin = this;
 
@@ -328,6 +329,7 @@ namespace SummerInAustralia
                 grill.transform.GetChild(6).gameObject.GetComponent<SausageSequence>().knob.transform.eulerAngles = new Vector3(-90, 0, 0);
                 grill.transform.GetChild(6).gameObject.GetComponent<SausageSequence>().progress = 0;
                 table.transform.GetChild(3).gameObject.SetActive(true);
+                shrineTrigger.hasPraised = false;
                 toDoText.text = "PRESS THE RED BUTTON TO START \n\nPLAY IN A PRIVATE ROOM";
                 timerText.text = "650";
                 timerText.color = Color.white;
@@ -433,6 +435,7 @@ namespace SummerInAustralia
             toDoText.text = "PRESS THE RED BUTTON TO START \n\nPLAY IN A PRIVATE ROOM";
             timerText.text = "650";
             timerText.color = Color.white;
+            shrineTrigger.hasPraised = false;
         }
     }
 }
