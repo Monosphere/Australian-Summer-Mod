@@ -8,7 +8,7 @@ namespace SummerInAustralia.Scripts
     {
         public int typeOfButton;
         public Plugin plugin;
-        bool hasPraised;
+        public bool hasPraised;
 
         //Only for grill placement, i dont need to assign this fo other stuff
         public SausageSequence sausageSequence;
