@@ -247,6 +247,8 @@ namespace SummerInAustralia.Scripts
                                     plugin.trophyParent.transform.GetChild(0).GetChild(2).gameObject.SetActive(true);
                                     plugin.toDoText.text = "Oh no, your friends didnt show up...\n\nTHE END";
                                     plugin.table.transform.GetChild(7).GetComponent<AudioSource>().Play();
+                                    SaveManager.SaveUserData(plugin);
+                                    plugin.ResetGame(true);
                                 }
                                 else
                                 {
