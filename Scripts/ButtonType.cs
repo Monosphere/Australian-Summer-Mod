@@ -338,7 +338,7 @@ namespace SummerInAustralia.Scripts
             }
         }
 
-        public void fard()
+        public void ForgotID()
         {
             transform.parent.GetChild(4).gameObject.SetActive(true);
             plugin.toDoText.text = "BRUH, YOU FORGOT YOUR ID AND NOW YOUR FRIENDS ARE MAD\n\nTHE END";
@@ -348,6 +348,7 @@ namespace SummerInAustralia.Scripts
             plugin.trophiesOwned[5] = true;
             SaveManager.SaveUserData(plugin);
         }
+
         IEnumerator destroyKangarooText()
         {
             yield return new WaitForSeconds(8);
@@ -356,13 +357,16 @@ namespace SummerInAustralia.Scripts
             plugin.trophiesOwned[3] = true;
             SaveManager.SaveUserData(plugin);
         }
+
         void destroyBeerText()
         {
             transform.parent.GetChild(4).gameObject.SetActive(false);
         }
+
         IEnumerator resetGame(float time)
         {
             yield return new WaitForSeconds(time);
+            yield break;
         }
     }
 }

@@ -14,11 +14,7 @@ namespace SummerInAustralia.Scripts
             GetComponent<Renderer>().enabled = false;
             GetComponent<BoxCollider>().enabled = false;
             transform.GetChild(0).GetComponent<ParticleSystem>().Play();
-            Invoke("DestroyMoney", 2);
-        }
-        void DestroyMoney()
-        {
-            Destroy(gameObject);
+            Destroy(gameObject, 2);
         }
     }
 }
