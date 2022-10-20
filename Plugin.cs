@@ -8,6 +8,7 @@ using Utilla;
 using SummerInAustralia.Scripts;
 using System.Collections.Generic;
 using System.Collections;
+using Photon.Pun;
 
 namespace SummerInAustralia
 {
@@ -365,7 +366,8 @@ namespace SummerInAustralia
             /* Activate your mod here */
             /* This code will run regardless of if the mod is enabled*/
             inRoom = true;
-            ShowAll();
+            if (!PhotonNetwork.CurrentRoom.IsVisible)
+                ShowAll();
         }
 
         /* This attribute tells Utilla to call this method when a modded room is left */
