@@ -1,39 +1,41 @@
 ﻿using System.IO;
 using UnityEngine;
-using System.Runtime.Serialization.Formatters.Binary;
 using SummerInAustralia;
 
 
 public static class SaveManager
 {
+    public static SaveData staticSaveData = new SaveData();
     public static void SaveUserData(Plugin plugin)
     {
-        BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/playerdata.aussie";
-        FileStream stream = new FileStream(path, FileMode.Create);
 
-        SaveData data = new SaveData(plugin);
+        staticSaveData.trophies = Plugin.Instance.trophiesOwned;
+        File.WriteAllText(path, JsonUtility.ToJson(staticSaveData));
 
-        formatter.Serialize(stream, data);
-        stream.Close();
     }
 
     public static SaveData LoadUserData()
     {
         string path = Application.persistentDataPath + "/playerdata.aussie";
+
         if (File.Exists(path))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(path, FileMode.Open);
+            staticSaveData = JsonUtility.FromJson<SaveData>(File.ReadAllText(path));
+            Debug.Log("getting savedata from file");
 
-            SaveData data = formatter.Deserialize(stream) as SaveData;
-            stream.Close();
-            return data;
+            string msg = "trophies: ";
+            foreach(bool trophie in staticSaveData.trophies)
+                msg += $"{trophie} ";
+
+            Debug.Log(msg);
         }
         else
         {
-            Debug.LogError("Save file not found in: " + path);
-            return null;
+            File.WriteAllText(path, JsonUtility.ToJson(staticSaveData));
+            Debug.LogWarning("savefile doesn't exist, creating now");
         }
+
+        return staticSaveData;
     }
 }

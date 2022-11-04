@@ -8,6 +8,8 @@ using Utilla;
 using SummerInAustralia.Scripts;
 using System.Collections.Generic;
 using System.Collections;
+using Photon.Pun;
+using System.Net.Http.Headers;
 
 namespace SummerInAustralia
 {
@@ -21,6 +23,7 @@ namespace SummerInAustralia
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
+        public static Plugin Instance { get; private set; }
         bool inRoom;
         bool ticking;
         public bool hasStarted;
@@ -64,14 +67,18 @@ namespace SummerInAustralia
 
         AssetBundle ObjectsBundle;
 
+        void Start()
+        {
+            Instance = this;
+            Events.GameInitialized += OnGameInitialized;
+        }
+
         void OnEnable()
         {
             if (inRoom)
             {
                 ShowAll();
             }
-            HarmonyPatches.ApplyHarmonyPatches();
-            Utilla.Events.GameInitialized += OnGameInitialized;
         }
 
         void OnDisable()
@@ -86,7 +93,7 @@ namespace SummerInAustralia
         void OnGameInitialized(object sender, EventArgs e)
         {
             boughtItems = new bool[7];
-            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("SummerInAustralia.Assets.ausobjects");
+            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("AustralianSummerMod.Assets.ausobjects");
             ObjectsBundle = AssetBundle.LoadFromStream(str);
 
             objectsParent = new GameObject();
@@ -132,7 +139,7 @@ namespace SummerInAustralia
             shrineTrigger.plugin = this;
 
             handheldsParent = Instantiate(ObjectsBundle.LoadAsset<GameObject>("Objects").transform.GetChild(5).gameObject).transform;
-            handheldsParent.SetParent(GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R").transform, false);
+            handheldsParent.SetParent(GorillaTagger.Instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R"), false);
             handheldsParent.transform.localPosition = Vector3.zero;
 
             purchaseBoxes = Instantiate(ObjectsBundle.LoadAsset<GameObject>("Objects").transform.GetChild(6).gameObject);
@@ -157,6 +164,24 @@ namespace SummerInAustralia
             ButtonType sauceButton = purchaseBoxes.transform.GetChild(6).GetChild(0).gameObject.AddComponent<ButtonType>();
             sauceButton.plugin = this;
             sauceButton.typeOfButton = 7;
+
+            /* Moves around some of the purchase boxes to not be in the way of the new decorations added in the new Halloween update. */
+
+            /* Beer */
+            beerButton.transform.parent.transform.position = new Vector3(-41.84f, 16.44f, -100.1402f);
+            beerButton.transform.parent.transform.rotation = Quaternion.Euler(0, 183.06f, 0);
+
+            /* Sausage (or a hotdog) */
+            sausageButton.transform.parent.transform.position = new Vector3(-36.7599f, 15.25f, -116.19f);
+            sausageButton.transform.parent.transform.rotation = Quaternion.Euler(0, 124.5801f, 0);
+
+            /* Hot Sauce */
+            sauceButton.transform.parent.transform.position = new Vector3(-40.2604f, 16.64f, - 101.3301f);
+            sauceButton.transform.parent.transform.rotation = Quaternion.Euler(0, 273.2778f, 0);
+
+            /* Plates */
+            plateButton.transform.parent.transform.position = new Vector3(-43.7705f, 26.44f, - 102.8602f);
+            plateButton.transform.parent.transform.rotation = Quaternion.Euler(0, 206.8204f, 0);
 
             trophyParent = Instantiate(ObjectsBundle.LoadAsset<GameObject>("Objects").transform.GetChild(10).gameObject);
             trophyParent.transform.position = new Vector3(-66,11.9f,-85);
@@ -234,6 +259,10 @@ namespace SummerInAustralia
                 }
 
             }
+
+            if (MoneyText1 == null || TimeText == null)
+                return;
+
             MoneyText1.text = "MONEY: " + money.ToString();
             TimeText.text = "TIME: " + timeSinceCountdown.ToString();
         }
@@ -245,14 +274,9 @@ namespace SummerInAustralia
             timeSinceCountdown -= 1;
             Debug.Log(timeSinceCountdown);
             timerText.text = timeSinceCountdown.ToString();
+            timerText.color = Color.white;
             if (timeSinceCountdown <= 10)
-            {
                 timerText.color = Color.red;
-            }
-            else
-            {
-                timerText.color = Color.white;
-            }
             ticking = false;
         }
 
@@ -276,6 +300,7 @@ namespace SummerInAustralia
                 purchaseBoxes.SetActive(true);
                 timeSinceCountdown = 650;
                 hasStarted = true;
+                hasID = false;
                 gamePhase = 1;
             }
         }
@@ -333,15 +358,19 @@ namespace SummerInAustralia
                 toDoText.text = "PRESS THE RED BUTTON TO START \n\nPLAY IN A PRIVATE ROOM";
                 timerText.text = "650";
                 timerText.color = Color.white;
+                hasID = false;
             }
             hasCalledEnd = false;
             #endregion
         }
         public void RemoveAll()
         {
-            purchaseBoxes.gameObject.SetActive(false);
-            objectsParent.gameObject.SetActive(false);
-            ResetGame(false);
+            if (purchaseBoxes != null && objectsParent != null)
+            {
+                purchaseBoxes.gameObject.SetActive(false);
+                objectsParent.gameObject.SetActive(false);
+                ResetGame(false);
+            }
         }
         public void ShowAll()
         {
@@ -350,13 +379,14 @@ namespace SummerInAustralia
         }
 
         /* This attribute tells Utilla to call this method when a modded room is joined */
-        [ModdedGamemodeJoin]
+            [ModdedGamemodeJoin]
         public void OnJoin(string gamemode)
         {
             /* Activate your mod here */
             /* This code will run regardless of if the mod is enabled*/
             inRoom = true;
-            ShowAll();
+            if (!PhotonNetwork.CurrentRoom.IsVisible)
+                ShowAll();
         }
 
         /* This attribute tells Utilla to call this method when a modded room is left */
@@ -436,6 +466,7 @@ namespace SummerInAustralia
             timerText.text = "650";
             timerText.color = Color.white;
             shrineTrigger.hasPraised = false;
+            hasID = false;
         }
     }
 }
